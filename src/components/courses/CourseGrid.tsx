@@ -7,17 +7,25 @@ import { AnimatePresence, motion } from "framer-motion"
 type Course = {
   id: string
   name: string
-  startDate: Date | null
-  endDate: Date | null
+  startDate: Date | string | null
+  endDate: Date | string | null
 }
 
-const formatTime = (date: Date | null): string => {
+
+const formatTime = (date: Date | string | null): string => {
   if (!date) return "N/A"
+
+  const parsedDate = typeof date === "string" ? new Date(date) : date
+
+
+  if (isNaN(parsedDate.getTime())) return "Date invalide"
+
   return new Intl.DateTimeFormat("default", {
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date)
+  }).format(parsedDate)
 }
+
 
 export default function CourseGrid({
   courses,
