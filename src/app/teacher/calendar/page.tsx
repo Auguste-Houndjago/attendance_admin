@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+
 import { TeacherCalendarView } from '@/components/Teacher/TeacherCalendarView';
-import { createClient } from '@/utils/supabase/client';
+
 
 
 import { getUserInfo } from '@/utils/getUserInfo';

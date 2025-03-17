@@ -42,7 +42,7 @@ export default async function Signup({
       email,
       password,
       options: {
-        emailRedirectTo: `${origin}/auth/callback`,
+        emailRedirectTo: "https://attendance-admin-lyart.vercel.app/auth/callback",
       },
     });
 
