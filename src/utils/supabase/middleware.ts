@@ -47,31 +47,31 @@ export async function updateSession(request: NextRequest) {
   }
 
 
-  if (!session) {
-    if (path.startsWith('/admin') || path.startsWith('/admin')) {
+  if (!user) {
+    if (request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
     return NextResponse.next()
   }
 
-  const role = session.user.user_metadata?.role
+  const role = user.user_metadata?.role
 
   switch (role) {
     case 'TEACHER':
-      if (path.startsWith('/admin')) {
+      if (request.nextUrl.pathname.startsWith('/admin')) {
         return NextResponse.redirect(new URL('/', request.url))
       }
       break
       
     case 'ADMIN':
-      if (path.startsWith('/teacher')) {
+      if (request.nextUrl.pathname.startsWith('/teacher')) {
         return NextResponse.redirect(new URL('/admin', request.url))
       }
       break
       
     default:
       // Si pas de rôle ou rôle non reconnu
-      if (path.startsWith('/admin') || path.startsWith('/teacher')) {
+      if (request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/teacher')) {
         return NextResponse.redirect(new URL('/auth/register', request.url))
       }
   }
