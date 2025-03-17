@@ -1,0 +1,240 @@
+
+
+RLS  prisma tables access
+
+--RLS pour l acces avec prisma au tables
+
+-- Policy to allow authenticated users to insert their own records
+CREATE POLICY "Users can insert their own profileS" 
+ON "User" 
+FOR INSERT 
+WITH CHECK (auth.uid()::text = id);
+
+-- Policy to allow users to view only their own or public data
+CREATE POLICY "Users can view limited user datas" 
+ON "User" 
+FOR SELECT 
+USING (auth.uid()::text = id);
+
+
+-- Enable RLS for Course table
+ALTER TABLE "Course" ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "Teachers and admins can insert courses" 
+ON "Course" 
+FOR INSERT 
+WITH CHECK (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) IN ('TEACHER', 'ADMIN')
+);
+-- Enable RLS for Attendance table
+ALTER TABLE "Attendance" ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow teachers to insert attendance records
+CREATE POLICY "Teachers can insert attendance" 
+ON "Attendance" 
+FOR INSERT 
+WITH CHECK (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'TEACHER'
+);
+
+-- Enable RLS for Session table
+ALTER TABLE "Session" ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow teachers to insert session records
+CREATE POLICY "Teachers can insert sessions" 
+ON "Session" 
+FOR INSERT 
+WITH CHECK (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'TEACHER'
+);
+
+-- Enable RLS for Notification table
+ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow only the specific user to insert their own notifications
+CREATE POLICY "Users can insert their own notifications" 
+ON "Notification" 
+FOR INSERT 
+WITH CHECK (auth.uid()::text = "userId");
+
+-- Enable RLS for Location table
+ALTER TABLE "Location" ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow admins to insert locations
+CREATE POLICY "Admins can insert locations" 
+ON "Location" 
+FOR INSERT 
+WITH CHECK (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'ADMIN'
+);
+
+-- Enable RLS for QRCode table
+ALTER TABLE "QRCode" ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow admins to insert QR codes
+CREATE POLICY "Admins can insert QR codes" 
+ON "QRCode" 
+FOR INSERT 
+WITH CHECK (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'ADMIN'
+);
+
+-- Enable RLS for QRScan table
+ALTER TABLE "QRScan" ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow users to insert their own QR scans
+CREATE POLICY "Users can insert their own QR scans" 
+ON "QRScan" 
+FOR INSERT 
+WITH CHECK (auth.uid()::text = "userId");
+
+--Room Table
+
+ALTER TABLE "Room" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated users to read rooms"
+ON "Room"
+FOR SELECT
+USING (auth.uid() IS NOT NULL);
+
+
+CREATE POLICY "Allow authenticated users to insert rooms"
+ON "Room"
+FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
+
+
+######################################################
+
+
+### Politiques RLS storage "avatar"
+
+
+-- Autoriser les utilisateurs authentifiés à télécharger des fichiers dans le bucket "avatars"
+CREATE POLICY "Allow authenticated users to upload"
+ON storage.objects
+FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
+
+-- Autoriser les utilisateurs authentifiés à lire leurs propres fichiers
+CREATE POLICY "Allow users to read their own files"
+ON storage.objects
+FOR SELECT
+USING (auth.uid()::text = owner_id);
+
+-- Autoriser les utilisateurs authentifiés à mettre à jour leurs propres fichiers
+CREATE POLICY "Allow users to update their own files"
+ON storage.objects
+FOR UPDATE
+USING (auth.uid()::text = owner_id);
+
+-- Autoriser les utilisateurs authentifiés à supprimer leurs propres fichiers
+CREATE POLICY "Allow users to delete their own files"
+ON storage.objects
+FOR DELETE
+USING (auth.uid()::text = owner_id);
+
+
+
+################## ajouter POSTGIS pour calculer les donnee de geolocalisation
+
+--pour activer l extention
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+--OR 
+CREATE EXTENSION postgis;
+
+
+--ensuite on peux verifier sa version avec:
+
+SELECT postgis_version();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##prisma User admin privilege sur les sotrage (avatars)
+
+CREATE POLICY "Allow prisma admins to delete all files"
+ON storage.objects
+FOR DELETE
+USING (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'ADMIN'
+);
+
+
+-- Autoriser les administrateurs à mettre à jour tous les fichiers dans le bucket "avatars"
+CREATE POLICY "Allow prisma admins to update all files"
+ON storage.objects
+FOR UPDATE
+USING (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'ADMIN'
+);
+
+
+-- Autoriser les administrateurs à télécharger des fichiers dans le bucket "avatars"
+CREATE POLICY "Allow prisma admins to upload"
+ON storage.objects
+FOR INSERT
+WITH CHECK (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'ADMIN'
+);
+
+-- Autoriser les administrateurs à lire tous les fichiers dans le bucket "avatars"
+CREATE POLICY "Allow prisma admins to read all files"
+ON storage.objects
+FOR SELECT
+USING (
+  (SELECT role FROM "User" WHERE id = auth.uid()::text) = 'ADMIN'
+);
+
+
+
+
+
+
+##auth admin ( pas necessaire )
+
+
+
+
+-- Autoriser les administrateurs à télécharger des fichiers dans le bucket "avatars"
+CREATE POLICY "Allow admins to upload"
+ON storage.objects
+FOR INSERT
+WITH CHECK (auth.role() = 'admin');
+
+-- Autoriser les administrateurs à lire tous les fichiers dans le bucket "avatars"
+CREATE POLICY "Allow admins to read all files"
+ON storage.objects
+FOR SELECT
+USING (auth.role() = 'admin');
+
+-- Autoriser les administrateurs à mettre à jour tous les fichiers dans le bucket "avatars"
+CREATE POLICY "Allow admins to update all files"
+ON storage.objects
+FOR UPDATE
+USING (auth.role() = 'admin');
+
+-- Autoriser les administrateurs à supprimer tous les fichiers dans le bucket "avatars"
+CREATE POLICY "Allow admins to delete all files"
+ON storage.objects
+FOR DELETE
+USING (auth.role() = 'admin');
+

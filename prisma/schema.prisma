@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TEACHER
+  ADMIN
+}
+
+enum Status {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+enum Day {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum Size {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum NotificationType {
+  ABSENCE
+  COURSE_CHANGE
+  NEW_COURSE
+  SCHEDULE_UPDATE
+  GENERAL 
+}
+
+enum VerificationMethod {
+  QR
+  GPS
+  MANUAL
+  ADMIN_OVERRIDE
+  WIFI
+  FACE_RECOGNITION
+}
+
+model User {
+  id            String          @id @default(uuid())
+  name          String?
+  email         String          @unique
+  phone         String?        @unique
+  role          Role            @default(TEACHER)
+  avatar_url    String?    
+  courses       CourseTeacher[]
+  attendances   Attendance[]
+  sessions      Session[]
+  notifications Notification[]
+  qrScans       QRScan[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  schedules     Schedule[]
+}
+
+model Course {
+  id          String          @id @default(uuid())
+  name        String
+  abbreviation String?
+  startDate   DateTime?        
+  endDate     DateTime?       
+  schedules   Schedule[]
+  teachers    CourseTeacher[] 
+  attendances Attendance[]
+  sessions    Session[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model CourseTeacher {
+  id        String   @id @default(uuid())
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  teacherId String
+  course    Course   @relation(fields: [courseId], references: [id])
+  courseId  String
+  subject   String   
+  filiere   String   
+  level     String   
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Room {
+  id         String     @id @default(uuid())
+  name       String     @unique
+  size       Size       @default(MEDIUM)
+  schedules  Schedule[]
+  location   Location?  @relation(fields: [locationId], references: [id])
+  locationId String?
+  qrCodes    QRCode[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  
+  @@index([locationId])
+}
+
+model Schedule {
+  id          String       @id @default(uuid())
+  course      Course       @relation(fields: [courseId], references: [id])
+  courseId    String
+  room        Room         @relation(fields: [roomId], references: [id])
+  roomId      String
+  day         Day      
+  startTime   DateTime
+  endTime     DateTime
+  teacher     User?        @relation(fields: [teacherId], references: [id])
+  teacherId   String?  
+  attendances Attendance[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([teacherId, courseId])
+  @@unique([roomId, day, startTime, endTime])
+}
+
+
+model Attendance {
+  id         String    @id @default(uuid())
+  teacher    User      @relation(fields: [teacherId], references: [id])
+  teacherId  String
+  course     Course    @relation(fields: [courseId], references: [id])
+  courseId   String
+  schedule   Schedule  @relation(fields: [scheduleId], references: [id])
+  scheduleId String
+  status     Status    @default(PRESENT)
+  notes      String?   
+  confirmed  Boolean   @default(true) 
+  timestamp  DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  @@index([teacherId])
+  @@index([courseId])
+  @@unique([scheduleId, teacherId]) // Ajout de cette contrainte unique
+}
+
+model Session {
+  id             String              @id @default(uuid())
+  teacher        User                @relation(fields: [teacherId], references: [id])
+  teacherId      String
+  course         Course              @relation(fields: [courseId], references: [id])
+  courseId       String
+  checkIn        DateTime?
+  checkOut       DateTime?
+  checkInMethod  VerificationMethod?
+  checkOutMethod VerificationMethod?
+  location       Location?           @relation(fields: [locationId], references: [id])
+  locationId     String?
+  qrScans        QRScan[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  
+  @@index([teacherId])
+  @@index([courseId])
+  @@index([locationId])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  user        User             @relation(fields: [userId], references: [id])
+  userId      String
+  message     String
+  type        NotificationType
+  read        Boolean          @default(false)
+  scheduleId  String?         // Optionnel, pour référence
+  courseId    String?         // Optionnel, pour référence
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  @@index([userId])
+  @@index([scheduleId]) // Index pour les recherches
+} 
+
+model Location {
+  id          String    @id @default(uuid())
+  name        String
+  address     String
+  latitude    Float
+  longitude   Float
+  radius      Float     @default(50)
+  active      Boolean   @default(true)
+  rooms       Room[]
+  sessions    Session[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model QRCode {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  room        Room      @relation(fields: [roomId], references: [id])
+  roomId      String
+  expiresAt   DateTime?
+  active      Boolean   @default(true)
+  scanHistory QRScan[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([roomId])
+}
+
+model QRScan {
+  id        String    @id @default(uuid())
+  qrCode    QRCode    @relation(fields: [qrCodeId], references: [id])
+  qrCodeId  String
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  session   Session?  @relation(fields: [sessionId], references: [id])
+  sessionId String?
+  timestamp DateTime  @default(now())
+  ipAddress String?
+  userAgent String?
+  
+  @@index([userId])
+  @@index([qrCodeId])
+  @@index([sessionId])
+}

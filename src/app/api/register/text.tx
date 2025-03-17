@@ -1,0 +1,80 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient, Role } from '@prisma/client';
+import { z } from 'zod';
+
+const prisma = new PrismaClient();
+
+// Registration validation schema (aligned with updated Prisma schema)
+const RegisterSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }).optional(),
+  email: z.string().email({ message: "Invalid email address" }),
+  phone: z.string().regex(/^\d{8}$/, { message: "Phone number must be 8 digits" }).optional(),
+  role: z.enum(['TEACHER', 'ADMIN']).optional().default('TEACHER'),
+  avatar_url: z.string().url().optional()
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = RegisterSchema.parse(body);
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: validatedData.email },
+          ...(validatedData.phone ? [{ phone: validatedData.phone }] : [])
+        ]
+      }
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { message: 'User with this email or phone number already exists' }, 
+        { status: 400 }
+      );
+    }
+
+    // Create new user
+    const newUser = await prisma.user.create({
+      data: {
+        ...validatedData,
+        // Ensure role is set with a default
+        role: validatedData.role || 'TEACHER'
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        avatar_url: true
+      }
+    });
+
+    return NextResponse.json(newUser, { status: 201 });
+  } catch (error) {
+    console.error('Registration error:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { message: 'Validation failed', errors: error.errors }, 
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: 'Internal server error' }, 
+      { status: 500 }
+    );
+  }
+}
+
+// Optional: Add GET method for any registration-related queries
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ message: 'Registration endpoint' }, { status: 200 });
+}
+
+
+
