@@ -37,7 +37,7 @@ export default async function Signup({
     if (password !== confirmPassword) {
       return redirect('/signup?message=Passwords do not match');
     }
-``
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
