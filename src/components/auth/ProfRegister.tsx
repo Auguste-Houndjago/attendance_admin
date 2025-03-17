@@ -183,7 +183,7 @@ export default function ProfRegister() {
               value={formData.name}
               onChange={handleNameChange}
               description={"votre nom"}
-              label="nom"
+              label=""
               labelPlacement={"outside"}
               placeholder="Votre Nom"
               type="text"
