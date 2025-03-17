@@ -16,6 +16,7 @@ import {
   BoltIcon,
   BookOpenIcon,
   ChevronDownIcon,
+  Home,
   Layers2Icon,
   LogOut,
   LogOutIcon,
@@ -51,25 +52,32 @@ export default async function Profile() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <Link href={"teacher/calendar"} className="flex flex-row gap-x-2">
+            <Link href={"admin/schedule"} className="flex flex-row gap-x-2">
               <Layers2Icon size={16} className="opacity-60" aria-hidden="true" />
               <span>Planning</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <BookOpenIcon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Cours</span>
+            <Home size={16} className="opacity-60" aria-hidden="true" />
+            <span>Salle</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
+          <Link href={"admin/location"} className="flex flex-row gap-x-2">
             <PinIcon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Notification </span>
+            <span>Localisation</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <UserPenIcon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Profile</span>
+
+
+          <Link href={"admin/parametres"} className="flex flex-row gap-x-2">
+          <UserPenIcon size={16} className="opacity-60" aria-hidden="true" />
+            <span> Profile </span>
+            </Link>
+      
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
