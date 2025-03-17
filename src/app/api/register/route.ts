@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         name: name,
         phone: phone,
         avatar_url,
-        role: "TEACHER",
+        role: "ADMIN",
         prisma_user_id: user.id  
       },
     });
