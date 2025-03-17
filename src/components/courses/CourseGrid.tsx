@@ -13,7 +13,7 @@ type Course = {
 
 
 const formatTime = (date: Date | string | null): string => {
-  if (!date) return "N/A"
+  if (!date) return "00:00"
 
   const parsedDate = typeof date === "string" ? new Date(date) : date
 
