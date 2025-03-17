@@ -13,9 +13,9 @@ const Layout = async ({ children }: LayoutProps) => {
   const user = await getUserInfo();
 
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || user.role !== 'ADMIN') { 
 
-     redirect('/login')
+     redirect('/auth/register')
  
   }
 

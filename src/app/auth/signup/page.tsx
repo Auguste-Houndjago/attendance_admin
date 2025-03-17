@@ -67,11 +67,11 @@ export default async function Signup({
 
         {searchParams?.message ? (
           <div className="p-4 border border-green-400 text-green-700 rounded">
-            <strong>Signup Successful!</strong>
+         
             <p>
-              Please check your email ( <strong>{searchParams.message}</strong> ) to confirm your account.
+              ( <strong>{searchParams.message}</strong> ) 
             </p>
-            <a href={`mailto:${searchParams.message}`} target="_blank" className="text-blue-600 underline text-center">Confirmation Link</a>
+           
           </div>
         ) : (
           <form action={signUp} className="space-y-5">

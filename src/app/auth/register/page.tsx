@@ -1,5 +1,4 @@
 
-'use client';
 
 import ProfRegister from '@/components/auth/ProfRegister';
 
