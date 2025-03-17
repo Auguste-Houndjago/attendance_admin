@@ -60,8 +60,9 @@ export default function CourseGrid({
           <div className="rounded-md cursor-pointer p-3 bg-zinc-100 dark:bg-zinc-800 group-hover:ring-1 ring-zinc-400 dark:ring-zinc-500 relative z-20 transition-all duration-300">
             <div className="z-50 relative">
               <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">{course.name}</h3>
-
-              <div className="mt-1 flex items-center justify-between text-xs">
+      {course.startDate && course.endDate &&  
+      
+      <div className="mt-1 flex items-center justify-between text-xs">
                 <div className="flex gap-1">
                   <span className="text-zinc-500 dark:text-zinc-400">Début:</span>
                   <span className="font-medium text-zinc-700 dark:text-zinc-300">{formatTime(course.startDate)}</span>
@@ -72,6 +73,8 @@ export default function CourseGrid({
                   <span className="font-medium text-zinc-700 dark:text-zinc-300">{formatTime(course.endDate)}</span>
                 </div>
               </div>
+
+}
             </div>
           </div>
         </div>
