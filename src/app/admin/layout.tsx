@@ -13,7 +13,7 @@ const Layout = async ({ children }: LayoutProps) => {
   const user = await getUserInfo();
 
   if (!user) {
-    redirect('/auth/login');
+    redirect('/login');
   } else if (user.role === 'TEACHER') {
     redirect('/teacher');
   } else if (user.role !== 'ADMIN') {
