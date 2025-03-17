@@ -63,7 +63,7 @@ export default function HomePage() {
               className="mt-8"
             >
               <Button asChild size="lg" className="rounded-md">
-                <Link href="/teacher">Accéder à mon espace</Link>
+                <Link href="/admin">Accéder à mon espace</Link>
               </Button>
             </motion.div>
           </div>
@@ -108,23 +108,7 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      {/* CTA Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="w-full py-16 border-t"
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold">Prêt à commencer votre journée ?</h2>
-          <p className="mt-4 text-lg text-muted-foreground">Accédez à votre espace pour voir vos cours d'aujourd'hui</p>
-          <Button asChild size="lg" className="mt-8">
-            <Link href="/teacher/calendar">
-              Voir mon planning <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </motion.section>
+ 
     </div>
   )
 }

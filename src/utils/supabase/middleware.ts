@@ -47,34 +47,7 @@ export async function updateSession(request: NextRequest) {
   }
 
 
-  if (!user) {
-    if (request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    return NextResponse.next()
-  }
 
-  const role = user.user_metadata?.role
-
-  switch (role) {
-    case 'TEACHER':
-      if (request.nextUrl.pathname.startsWith('/admin')) {
-        return NextResponse.redirect(new URL('/', request.url))
-      }
-      break
-      
-    case 'ADMIN':
-      if (request.nextUrl.pathname.startsWith('/teacher')) {
-        return NextResponse.redirect(new URL('/admin', request.url))
-      }
-      break
-      
-    default:
-      // Si pas de rôle ou rôle non reconnu
-      if (request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/teacher')) {
-        return NextResponse.redirect(new URL('/auth/register', request.url))
-      }
-  }
 
 
  
