@@ -12,13 +12,14 @@ interface LayoutProps {
 const Layout = async ({ children }: LayoutProps) => {
   const user = await getUserInfo();
 
-
-  if (!user || user.role !== 'ADMIN') { 
-
-     redirect('/auth/register')
- 
+  if (!user) {
+    redirect('/auth/login');
+  } else if (user.role === 'TEACHER') {
+    redirect('/teacher');
+  } else if (user.role !== 'ADMIN') {
+    redirect('/auth/register');
   }
-
+  
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-[#252528] h-full ">
       <div className="h-10" />
